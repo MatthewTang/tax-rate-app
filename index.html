@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hong Kong Salaries Tax Infographic (2025/26)</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 300px;
+            max-height: 400px;
+        }
+        @media (min-width: 768px) {
+            .chart-container {
+                height: 350px;
+            }
+        }
+        .modal-content {
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .spinner {
+            border-top-color: #0A9396;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body class="bg-gray-100">
+
+    <div class="container mx-auto p-4 md:p-8">
+
+        <header class="text-center mb-12">
+            <h1 class="text-4xl md:text-5xl font-bold text-[#005F73] mb-2">Understanding Your Hong Kong Salaries Tax</h1>
+            <p class="text-lg text-gray-600">An Infographic for the 2025/26 Assessment Year</p>
+        </header>
+
+        <main class="space-y-8">
+            
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <div class="bg-white rounded-lg shadow-md p-6 flex flex-col justify-center items-center text-center">
+                    <span class="text-5xl font-bold text-[#CA6702]">12.19%</span>
+                    <p class="text-gray-700 mt-2">Highest effective tax rate for incomes up to HK$70,000/month.</p>
+                </div>
+                <div class="bg-white rounded-lg shadow-md p-6 flex flex-col justify-center items-center text-center">
+                     <span class="text-5xl font-bold text-[#0A9396]">HK$132,000</span>
+                    <p class="text-gray-700 mt-2">Standard Basic Allowance for the year.</p>
+                </div>
+                 <div class="bg-white rounded-lg shadow-md p-6 flex flex-col justify-center items-center text-center">
+                    <span class="text-5xl font-bold text-[#94D2BD]">HK$4,800</span>
+                    <p class="text-gray-700 mt-2">Tax payable on a monthly income of HK$20,000.</p>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-[#005F73] mb-4">✨ Tax Savings Advisor</h2>
+                <p class="text-gray-600 mb-6">Curious about potential tax deductions? Select your income level and let our AI-powered advisor provide personalized tips based on the Hong Kong tax system. </p>
+                <button id="openModalBtn" class="bg-[#EE9B00] hover:bg-[#CA6702] text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300">
+                    Get Personalized Tax Savings Tips
+                </button>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-[#005F73] mb-4">Tax Payable by Income Level</h2>
+                <p class="text-gray-600 mb-6">This chart directly compares the total annual tax amount for different monthly incomes. It clearly shows how the absolute tax liability increases as income grows, with the most significant jumps occurring at higher income levels.</p>
+                <div class="chart-container">
+                    <canvas id="taxAmountChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-[#005F73] mb-4">The Rise of the Effective Tax Rate</h2>
+                <p class="text-gray-600 mb-6">While absolute tax increases, the effective tax rate—the actual percentage of your total income paid in taxes—also rises. This line chart illustrates Hong Kong's progressive tax system: the more you earn, the higher the percentage you contribute.</p>
+                <div class="chart-container">
+                    <canvas id="effectiveRateChart"></canvas>
+                </div>
+            </div>
+
+            <div class="bg-white rounded-lg shadow-md p-6 md:p-8">
+                <h2 class="text-2xl font-bold text-[#005F73] mb-4">Detailed Tax Data Breakdown</h2>
+                 <p class="text-gray-600 mb-6">For those who want a closer look, this table provides the precise figures used in our visualizations, covering monthly income, annual income, total tax, and the resulting effective tax rate.</p>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr>
+                                <th class="py-3 px-4 bg-[#0A9396] text-white font-bold uppercase text-sm rounded-tl-lg">Monthly Income (HKD)</th>
+                                <th class="py-3 px-4 bg-[#0A9396] text-white font-bold uppercase text-sm">Annual Income (HKD)</th>
+                                <th class="py-3 px-4 bg-[#0A9396] text-white font-bold uppercase text-sm">Tax (HKD)</th>
+                                <th class="py-3 px-4 bg-[#0A9396] text-white font-bold uppercase text-sm rounded-tr-lg">Effective Rate (%)</th>
+                            </tr>
+                        </thead>
+                        <tbody class="text-gray-700">
+                            <tr class="hover:bg-gray-100 border-b">
+                                <td class="py-3 px-4">10,000</td>
+                                <td class="py-3 px-4">120,000</td>
+                                <td class="py-3 px-4">0</td>
+                                <td class="py-3 px-4">0.00</td>
+                            </tr>
+                            <tr class="hover:bg-gray-100 border-b">
+                                <td class="py-3 px-4">20,000</td>
+                                <td class="py-3 px-4">240,000</td>
+                                <td class="py-3 px-4">4,800</td>
+                                <td class="py-3 px-4">2.00</td>
+                            </tr>
+                            <tr class="hover:bg-gray-100 border-b">
+                                <td class="py-3 px-4">30,000</td>
+                                <td class="py-3 px-4">360,000</td>
+                                <td class="py-3 px-4">20,760</td>
+                                <td class="py-3 px-4">5.77</td>
+                            </tr>
+                            <tr class="hover:bg-gray-100 border-b">
+                                <td class="py-3 px-4">40,000</td>
+                                <td class="py-3 px-4">480,000</td>
+                                <td class="py-3 px-4">41,160</td>
+                                <td class="py-3 px-4">8.58</td>
+                            </tr>
+                            <tr class="hover:bg-gray-100 border-b">
+                                <td class="py-3 px-4">50,000</td>
+                                <td class="py-3 px-4">600,000</td>
+                                <td class="py-3 px-4">61,560</td>
+                                <td class="py-3 px-4">10.26</td>
+                            </tr>
+                            <tr class="hover:bg-gray-100 border-b">
+                                <td class="py-3 px-4">60,000</td>
+                                <td class="py-3 px-4">720,000</td>
+                                <td class="py-3 px-4">81,960</td>
+                                <td class="py-3 px-4">11.38</td>
+                            </tr>
+                            <tr class="hover:bg-gray-100">
+                                <td class="py-3 px-4">70,000</td>
+                                <td class="py-3 px-4">840,000</td>
+                                <td class="py-3 px-4">102,360</td>
+                                <td class="py-3 px-4">12.19</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </main>
+
+        <footer class="text-center mt-12 py-6 border-t border-gray-300">
+            <p class="text-gray-600 text-sm">Data for 2025/26 assessment year. Assumes only the basic allowance of HK$132,000 and no other deductions. For informational purposes only.</p>
+        </footer>
+
+    </div>
+
+    <div id="taxAdvisorModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-2xl modal-content">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-2xl font-bold text-[#005F73]">✨ AI Tax Savings Advisor</h3>
+                <button id="closeModalBtn" class="text-gray-500 hover:text-gray-800 text-3xl">&times;</button>
+            </div>
+            <div class="p-6">
+                <div id="modal-initial-state">
+                    <p class="text-gray-600 mb-4">Please select your monthly income level below. Our AI advisor will then generate potential tax-saving strategies for you.</p>
+                    <div class="mb-4">
+                        <label for="incomeSelect" class="block text-sm font-medium text-gray-700 mb-2">Monthly Income (HKD):</label>
+                        <select id="incomeSelect" class="w-full p-2 border border-gray-300 rounded-md focus:ring-[#0A9396] focus:border-[#0A9396]">
+                        </select>
+                    </div>
+                    <button id="getTipsBtn" class="w-full bg-[#0A9396] hover:bg-[#005F73] text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300">
+                        Generate My Tips
+                    </button>
+                </div>
+                <div id="modal-loading-state" class="hidden text-center py-8">
+                    <div class="spinner w-12 h-12 rounded-full border-4 border-gray-200 mx-auto mb-4"></div>
+                    <p class="text-gray-600">Analyzing your situation and generating personalized tips...</p>
+                </div>
+                <div id="modal-results-state" class="hidden">
+                    <h4 class="text-xl font-bold text-[#005F73] mb-4">Your Personalized Tax Saving Tips:</h4>
+                    <div id="tipsResult" class="prose max-w-none text-gray-700 bg-gray-50 p-4 rounded-lg"></div>
+                     <p class="text-xs text-gray-500 mt-4">Disclaimer: These tips are AI-generated for informational purposes only and do not constitute financial advice. Please consult with a qualified professional for financial guidance.</p>
+                    <button id="resetModalBtn" class="mt-6 w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
+                        Start Over
+                    </button>
+                </div>
+                 <div id="modal-error-state" class="hidden text-center py-8">
+                    <p class="text-red-600 font-bold">An error occurred.</p>
+                    <p class="text-gray-600">Could not retrieve tips at this time. Please try again later.</p>
+                     <button id="resetModalErrorBtn" class="mt-6 bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300">
+                        Try Again
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const taxData = {
+            monthlyIncome: [10000, 20000, 30000, 40000, 50000, 60000, 70000],
+            annualIncome: [120000, 240000, 360000, 480000, 600000, 720000, 840000],
+            taxPayable: [0, 4800, 20760, 41160, 61560, 81960, 102360],
+            effectiveRate: [0.00, 2.00, 5.77, 8.58, 10.26, 11.38, 12.19]
+        };
+
+        const chartLabels = taxData.monthlyIncome.map(income => `HK$${income.toLocaleString()}`);
+        
+        const tooltipTitleCallback = (tooltipItems) => {
+            const item = tooltipItems[0];
+            let label = item.chart.data.labels[item.dataIndex];
+            if (Array.isArray(label)) {
+                return label.join(' ');
+            }
+            return label;
+        };
+
+        const commonChartOptions = {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        title: tooltipTitleCallback
+                    },
+                    backgroundColor: '#005F73',
+                    titleFont: {
+                        size: 14,
+                        weight: 'bold'
+                    },
+                    bodyFont: {
+                        size: 12
+                    },
+                    padding: 10,
+                    cornerRadius: 4,
+                    displayColors: false
+                }
+            },
+            scales: {
+                x: {
+                    grid: {
+                        display: false
+                    },
+                    ticks: {
+                        color: '#4B5563'
+                    }
+                },
+                y: {
+                    grid: {
+                        color: '#E5E7EB'
+                    },
+                    ticks: {
+                        color: '#4B5563',
+                        beginAtZero: true
+                    }
+                }
+            }
+        };
+
+        const ctxBar = document.getElementById('taxAmountChart').getContext('2d');
+        new Chart(ctxBar, {
+            type: 'bar',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Tax (HKD)',
+                    data: taxData.taxPayable,
+                    backgroundColor: '#0A9396',
+                    borderColor: '#005F73',
+                    borderWidth: 1,
+                    borderRadius: 4
+                }]
+            },
+            options: {
+                ...commonChartOptions,
+                scales: {
+                    ...commonChartOptions.scales,
+                    y: {
+                        ...commonChartOptions.scales.y,
+                        ticks: {
+                             ...commonChartOptions.scales.y.ticks,
+                            callback: function(value) {
+                                return 'HK$' + value.toLocaleString();
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        const ctxLine = document.getElementById('effectiveRateChart').getContext('2d');
+        new Chart(ctxLine, {
+            type: 'line',
+            data: {
+                labels: chartLabels,
+                datasets: [{
+                    label: 'Effective Rate (%)',
+                    data: taxData.effectiveRate,
+                    backgroundColor: 'rgba(238, 155, 0, 0.2)',
+                    borderColor: '#EE9B00',
+                    pointBackgroundColor: '#CA6702',
+                    pointBorderColor: '#fff',
+                    pointHoverRadius: 7,
+                    pointHoverBackgroundColor: '#CA6702',
+                    pointRadius: 5,
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.3
+                }]
+            },
+            options: {
+                ...commonChartOptions,
+                 scales: {
+                    ...commonChartOptions.scales,
+                    y: {
+                        ...commonChartOptions.scales.y,
+                        ticks: {
+                             ...commonChartOptions.scales.y.ticks,
+                            callback: function(value) {
+                                return value + '%';
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        const modal = document.getElementById('taxAdvisorModal');
+        const openModalBtn = document.getElementById('openModalBtn');
+        const closeModalBtn = document.getElementById('closeModalBtn');
+        const getTipsBtn = document.getElementById('getTipsBtn');
+        const incomeSelect = document.getElementById('incomeSelect');
+        const resetModalBtn = document.getElementById('resetModalBtn');
+        const resetModalErrorBtn = document.getElementById('resetModalErrorBtn');
+
+        const initialState = document.getElementById('modal-initial-state');
+        const loadingState = document.getElementById('modal-loading-state');
+        const resultsState = document.getElementById('modal-results-state');
+        const errorState = document.getElementById('modal-error-state');
+        const tipsResult = document.getElementById('tipsResult');
+
+        taxData.monthlyIncome.forEach(income => {
+            const option = document.createElement('option');
+            option.value = income;
+            option.textContent = `HK$${income.toLocaleString()}`;
+            incomeSelect.appendChild(option);
+        });
+
+        const showModal = () => {
+            modal.classList.remove('hidden');
+            modal.classList.add('flex');
+        };
+
+        const hideModal = () => {
+            modal.classList.add('hidden');
+            modal.classList.remove('flex');
+            resetModal();
+        };
+
+        const resetModal = () => {
+            initialState.classList.remove('hidden');
+            loadingState.classList.add('hidden');
+            resultsState.classList.add('hidden');
+            errorState.classList.add('hidden');
+            tipsResult.innerHTML = '';
+            incomeSelect.selectedIndex = 0;
+        };
+
+        openModalBtn.addEventListener('click', showModal);
+        closeModalBtn.addEventListener('click', hideModal);
+        resetModalBtn.addEventListener('click', resetModal);
+        resetModalErrorBtn.addEventListener('click', resetModal);
+        
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) {
+                hideModal();
+            }
+        });
+
+        getTipsBtn.addEventListener('click', async () => {
+            const selectedIncome = incomeSelect.value;
+            
+            initialState.classList.add('hidden');
+            loadingState.classList.remove('hidden');
+
+            const prompt = `I am a single person in Hong Kong with a monthly income of ${selectedIncome} HKD and only the basic allowance. Based on the Hong Kong tax system, provide three actionable and personalized tax-saving tips. For example, suggest things like making voluntary contributions to an MPF scheme, approved charitable donations, or self-education expenses. Keep the tips concise, easy to understand for a non-accountant, and format them as an unordered list using Markdown.`;
+
+            try {
+                let chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
+                const payload = { contents: chatHistory };
+                const apiKey = ""; 
+                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+                
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    throw new Error(`API request failed with status ${response.status}`);
+                }
+
+                const result = await response.json();
+                
+                if (result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
+                    
+                    let text = result.candidates[0].content.parts[0].text;
+                    text = text.replace(/\*/g, '•');
+                    tipsResult.innerHTML = text.split('\n').map(line => `<p>${line}</p>`).join('');
+
+                    loadingState.classList.add('hidden');
+                    resultsState.classList.remove('hidden');
+                } else {
+                    throw new Error("Invalid response structure from API.");
+                }
+
+            } catch (error) {
+                console.error("Error calling Gemini API:", error);
+                loadingState.classList.add('hidden');
+                errorState.classList.remove('hidden');
+            }
+        });
+
+    </script>
+</body>
+</html>
