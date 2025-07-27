@@ -71,15 +71,40 @@ The application uses the following external libraries loaded via CDN:
 - **Chart.js**: For interactive data visualizations
 - **Google Fonts (Inter)**: For typography
 - **Google Gemini API**: For AI-powered tax advice (requires API key)
+- **Sentry Browser SDK**: For error monitoring and performance tracking (optional)
 
 No installation or package management is required as all dependencies are loaded from CDN.
 
 ### Configuration (Optional)
 
+#### AI Tax Savings Advisor
 To enable the AI Tax Savings Advisor feature:
 1. Obtain a Google Gemini API key from the Google AI Studio
 2. Replace the empty `apiKey` variable in the JavaScript section of `index.html`
 3. The feature will work without an API key but will show an error message
+
+#### Sentry Error Monitoring
+The application includes Sentry error monitoring for tracking and debugging issues:
+
+1. **Create a Sentry Account**
+   - Sign up at [sentry.io](https://sentry.io)
+   - Create a new project for JavaScript/Browser applications
+
+2. **Configure Sentry DSN**
+   - Copy your project's DSN from the Sentry dashboard
+   - In `index.html`, replace `'YOUR_SENTRY_DSN_HERE'` with your actual DSN
+   - Update the environment setting from 'development' to 'production' for live deployments
+
+3. **Test Error Monitoring**
+   - Use the "🐛 Test Error Monitoring" button to verify Sentry integration
+   - Check your Sentry dashboard to see captured errors and performance data
+
+4. **Optional: Customize Sentry Configuration**
+   - Adjust sample rates for performance monitoring and session replay
+   - Modify user context and tags as needed for your use case
+   - Configure additional integrations in the Sentry.init() call
+
+**Note**: The application will function normally even if Sentry is not configured. All Sentry-related code includes error handling to prevent disruption of the main application.
 
 ## Usage
 
