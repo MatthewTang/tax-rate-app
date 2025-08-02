@@ -216,14 +216,13 @@
 
     <script>
         // Sentry Error Monitoring Configuration
-        // To enable Sentry monitoring:
-        // 1. Replace 'YOUR_SENTRY_DSN_HERE' with your actual Sentry project DSN
-        // 2. Update the environment value to match your deployment (development/production)
-        // 3. Update the release version to match your app version
+        // To customize Sentry monitoring:
+        // 1. Update the environment value to match your deployment (development/production)
+        // 2. Update the release version to match your app version
         try {
             if (typeof Sentry !== 'undefined') {
                 Sentry.init({
-                    dsn: 'YOUR_SENTRY_DSN_HERE', // Replace with your actual Sentry DSN
+                    dsn: 'https://cbfeb96a479d74e3f2e8331538a4e864@o4509741006061569.ingest.us.sentry.io/4509741166690304',
                     environment: 'development', // Change to 'production' for live deployments
                     release: 'tax-rate-app@1.0.0', // Update with your app version
                     integrations: [

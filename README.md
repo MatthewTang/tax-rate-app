@@ -84,27 +84,24 @@ To enable the AI Tax Savings Advisor feature:
 3. The feature will work without an API key but will show an error message
 
 #### Sentry Error Monitoring
-The application includes Sentry error monitoring for tracking and debugging issues:
+The application includes pre-configured Sentry error monitoring for tracking and debugging issues:
 
-1. **Create a Sentry Account**
-   - Sign up at [sentry.io](https://sentry.io)
-   - Create a new project for JavaScript/Browser applications
+1. **Error Monitoring Ready**
+   - Sentry DSN is already configured and ready to use
+   - Error monitoring will automatically capture and report issues
+   - Performance monitoring and session replay are enabled
 
-2. **Configure Sentry DSN**
-   - Copy your project's DSN from the Sentry dashboard
-   - In `index.html`, replace `'YOUR_SENTRY_DSN_HERE'` with your actual DSN
-   - Update the environment setting from 'development' to 'production' for live deployments
-
-3. **Test Error Monitoring**
+2. **Test Error Monitoring**
    - Use the "🐛 Test Error Monitoring" button to verify Sentry integration
-   - Check your Sentry dashboard to see captured errors and performance data
+   - Check the Sentry dashboard to see captured errors and performance data
 
-4. **Optional: Customize Sentry Configuration**
-   - Adjust sample rates for performance monitoring and session replay
+3. **Optional: Customize Sentry Configuration**
+   - Update the environment setting from 'development' to 'production' for live deployments
+   - Adjust sample rates for performance monitoring and session replay in `index.html`
    - Modify user context and tags as needed for your use case
    - Configure additional integrations in the Sentry.init() call
 
-**Note**: The application will function normally even if Sentry is not configured. All Sentry-related code includes error handling to prevent disruption of the main application.
+**Note**: The application will function normally even if Sentry services are unavailable. All Sentry-related code includes error handling to prevent disruption of the main application.
 
 ## Usage
 
