@@ -7,7 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Sentry Error Monitoring -->
-    <script src="https://browser.sentry-cdn.com/8.46.0/bundle.min.js" integrity="sha384-3N2AW5qUQdQmMaVJHjT/J5tBwwONtq0P5Lg8LqpXO5X8e6+pnQ+pXy8QZMUl/Hzn" crossorigin="anonymous"></script>
+    <script
+      src="https://js.sentry-cdn.com/cbfeb96a479d74e3f2e8331538a4e864.min.js"
+      crossorigin="anonymous"
+    ></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -222,7 +225,6 @@
         try {
             if (typeof Sentry !== 'undefined') {
                 Sentry.init({
-                    dsn: 'https://cbfeb96a479d74e3f2e8331538a4e864@o4509741006061569.ingest.us.sentry.io/4509741166690304',
                     environment: 'development', // Change to 'production' for live deployments
                     release: 'tax-rate-app@1.0.0', // Update with your app version
                     integrations: [
