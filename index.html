@@ -6,6 +6,8 @@
     <title>Hong Kong Salaries Tax Infographic (2025/26)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Sentry Error Monitoring -->
+    <script src="https://browser.sentry-cdn.com/8.46.0/bundle.min.js" integrity="sha384-3N2AW5qUQdQmMaVJHjT/J5tBwwONtq0P5Lg8LqpXO5X8e6+pnQ+pXy8QZMUl/Hzn" crossorigin="anonymous"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -77,9 +79,14 @@
             <div class="bg-white rounded-lg shadow-md p-6 md:p-8">
                 <h2 class="text-2xl font-bold text-[#005F73] mb-4" data-i18n="advisor_title">✨ Tax Savings Advisor</h2>
                 <p class="text-gray-600 mb-6" data-i18n="advisor_desc">Curious about potential tax deductions? Select your income level and let our AI-powered advisor provide personalized tips based on the Hong Kong tax system. </p>
-                <button id="openModalBtn" class="bg-[#EE9B00] hover:bg-[#CA6702] text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300" data-i18n="advisor_button">
-                    Get Personalized Tax Savings Tips
-                </button>
+                <div class="flex flex-col sm:flex-row gap-4">
+                    <button id="openModalBtn" class="bg-[#EE9B00] hover:bg-[#CA6702] text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 flex-1" data-i18n="advisor_button">
+                        Get Personalized Tax Savings Tips
+                    </button>
+                    <button id="testErrorBtn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 sm:flex-initial" data-i18n="test_error_button">
+                        🐛 Test Error Monitoring
+                    </button>
+                </div>
             </div>
 
             <div class="bg-white rounded-lg shadow-md p-6 md:p-8">
@@ -208,6 +215,51 @@
     </div>
 
     <script>
+        // Sentry Error Monitoring Configuration
+        // To enable Sentry monitoring:
+        // 1. Replace 'YOUR_SENTRY_DSN_HERE' with your actual Sentry project DSN
+        // 2. Update the environment value to match your deployment (development/production)
+        // 3. Update the release version to match your app version
+        try {
+            if (typeof Sentry !== 'undefined') {
+                Sentry.init({
+                    dsn: 'YOUR_SENTRY_DSN_HERE', // Replace with your actual Sentry DSN
+                    environment: 'development', // Change to 'production' for live deployments
+                    release: 'tax-rate-app@1.0.0', // Update with your app version
+                    integrations: [
+                        Sentry.browserTracingIntegration(),
+                    ],
+                    // Performance Monitoring
+                    tracesSampleRate: 1.0, // Capture 100% of the transactions, reduce in production
+                    // Session Replay (optional)
+                    replaysSessionSampleRate: 0.1, // 10% of sessions will be recorded
+                    replaysOnErrorSampleRate: 1.0, // 100% of sessions with errors will be recorded
+                    beforeSend: (event) => {
+                        // Filter out non-error events in development
+                        if (event.exception && event.exception.values) {
+                            console.log('Sentry capturing error:', event);
+                        }
+                        return event;
+                    }
+                });
+
+                // Set user context
+                Sentry.setUser({
+                    id: 'anonymous',
+                });
+
+                // Set tags
+                Sentry.setTag('app', 'tax-rate-app');
+                Sentry.setTag('feature', 'tax-calculator');
+
+                console.log('Sentry error monitoring initialized successfully');
+            } else {
+                console.warn('Sentry SDK not loaded - error monitoring disabled');
+            }
+        } catch (error) {
+            console.error('Failed to initialize Sentry:', error);
+        }
+
         // Translation object
         const translations = {
             en: {
@@ -242,7 +294,8 @@
                 modal_error_text: "Could not retrieve tips at this time. Please try again later.",
                 modal_try_again: "Try Again",
                 chart_tax_label: "Tax (HKD)",
-                chart_rate_label: "Effective Rate (%)"
+                chart_rate_label: "Effective Rate (%)",
+                test_error_button: "🐛 Test Error Monitoring"
             },
             "zh-Hant": {
                 title: "了解您的香港薪俸稅",
@@ -276,7 +329,8 @@
                 modal_error_text: "目前無法獲取建議。請稍後再試。",
                 modal_try_again: "重試",
                 chart_tax_label: "稅款（港幣）",
-                chart_rate_label: "有效稅率（%）"
+                chart_rate_label: "有效稅率（%）",
+                test_error_button: "🐛 測試錯誤監控"
             }
         };
 
@@ -381,73 +435,87 @@
         };
 
         function createCharts() {
-            const ctxBar = document.getElementById('taxAmountChart').getContext('2d');
-            taxAmountChart = new Chart(ctxBar, {
-                type: 'bar',
-                data: {
-                    labels: getChartLabels(),
-                    datasets: [{
-                        label: translations[currentLanguage].chart_tax_label,
-                        data: taxData.taxPayable,
-                        backgroundColor: '#0A9396',
-                        borderColor: '#005F73',
-                        borderWidth: 1,
-                        borderRadius: 4
-                    }]
-                },
-                options: {
-                    ...commonChartOptions,
-                    scales: {
-                        ...commonChartOptions.scales,
-                        y: {
-                            ...commonChartOptions.scales.y,
-                            ticks: {
-                                 ...commonChartOptions.scales.y.ticks,
-                                callback: function(value) {
-                                    return 'HK$' + value.toLocaleString();
+            try {
+                const ctxBar = document.getElementById('taxAmountChart').getContext('2d');
+                taxAmountChart = new Chart(ctxBar, {
+                    type: 'bar',
+                    data: {
+                        labels: getChartLabels(),
+                        datasets: [{
+                            label: translations[currentLanguage].chart_tax_label,
+                            data: taxData.taxPayable,
+                            backgroundColor: '#0A9396',
+                            borderColor: '#005F73',
+                            borderWidth: 1,
+                            borderRadius: 4
+                        }]
+                    },
+                    options: {
+                        ...commonChartOptions,
+                        scales: {
+                            ...commonChartOptions.scales,
+                            y: {
+                                ...commonChartOptions.scales.y,
+                                ticks: {
+                                     ...commonChartOptions.scales.y.ticks,
+                                    callback: function(value) {
+                                        return 'HK$' + value.toLocaleString();
+                                    }
                                 }
                             }
                         }
                     }
+                });
+            } catch (error) {
+                console.error('Error creating tax amount chart:', error);
+                if (typeof Sentry !== 'undefined' && Sentry.captureException) {
+                    Sentry.captureException(error);
                 }
-            });
+            }
 
-            const ctxLine = document.getElementById('effectiveRateChart').getContext('2d');
-            effectiveRateChart = new Chart(ctxLine, {
-                type: 'line',
-                data: {
-                    labels: getChartLabels(),
-                    datasets: [{
-                        label: translations[currentLanguage].chart_rate_label,
-                        data: taxData.effectiveRate,
-                        backgroundColor: 'rgba(238, 155, 0, 0.2)',
-                        borderColor: '#EE9B00',
-                        pointBackgroundColor: '#CA6702',
-                        pointBorderColor: '#fff',
-                        pointHoverRadius: 7,
-                        pointHoverBackgroundColor: '#CA6702',
-                        pointRadius: 5,
-                        borderWidth: 3,
-                        fill: true,
-                        tension: 0.3
-                    }]
-                },
-                options: {
-                    ...commonChartOptions,
-                     scales: {
-                        ...commonChartOptions.scales,
-                        y: {
-                            ...commonChartOptions.scales.y,
-                            ticks: {
-                                 ...commonChartOptions.scales.y.ticks,
-                                callback: function(value) {
-                                    return value + '%';
+            try {
+                const ctxLine = document.getElementById('effectiveRateChart').getContext('2d');
+                effectiveRateChart = new Chart(ctxLine, {
+                    type: 'line',
+                    data: {
+                        labels: getChartLabels(),
+                        datasets: [{
+                            label: translations[currentLanguage].chart_rate_label,
+                            data: taxData.effectiveRate,
+                            backgroundColor: 'rgba(238, 155, 0, 0.2)',
+                            borderColor: '#EE9B00',
+                            pointBackgroundColor: '#CA6702',
+                            pointBorderColor: '#fff',
+                            pointHoverRadius: 7,
+                            pointHoverBackgroundColor: '#CA6702',
+                            pointRadius: 5,
+                            borderWidth: 3,
+                            fill: true,
+                            tension: 0.3
+                        }]
+                    },
+                    options: {
+                        ...commonChartOptions,
+                         scales: {
+                            ...commonChartOptions.scales,
+                            y: {
+                                ...commonChartOptions.scales.y,
+                                ticks: {
+                                     ...commonChartOptions.scales.y.ticks,
+                                    callback: function(value) {
+                                        return value + '%';
+                                    }
                                 }
                             }
                         }
                     }
+                });
+            } catch (error) {
+                console.error('Error creating effective rate chart:', error);
+                if (typeof Sentry !== 'undefined' && Sentry.captureException) {
+                    Sentry.captureException(error);
                 }
-            });
+            }
         }
 
         function updateCharts() {
@@ -469,6 +537,7 @@
         const incomeSelect = document.getElementById('incomeSelect');
         const resetModalBtn = document.getElementById('resetModalBtn');
         const resetModalErrorBtn = document.getElementById('resetModalErrorBtn');
+        const testErrorBtn = document.getElementById('testErrorBtn');
 
         const initialState = document.getElementById('modal-initial-state');
         const loadingState = document.getElementById('modal-loading-state');
@@ -510,6 +579,37 @@
         closeModalBtn.addEventListener('click', hideModal);
         resetModalBtn.addEventListener('click', resetModal);
         resetModalErrorBtn.addEventListener('click', resetModal);
+        
+        // Test error button for Sentry demonstration
+        testErrorBtn.addEventListener('click', () => {
+            try {
+                // Create a test error for Sentry monitoring demonstration
+                const testError = new Error('This is a test error for Sentry monitoring demonstration');
+                testError.name = 'TestError';
+                
+                // Add additional context
+                if (typeof Sentry !== 'undefined' && Sentry.addBreadcrumb) {
+                    Sentry.addBreadcrumb({
+                        message: 'User clicked test error button',
+                        category: 'user-action',
+                        level: 'info'
+                    });
+                }
+                
+                // Capture with Sentry if available
+                if (typeof Sentry !== 'undefined' && Sentry.captureException) {
+                    Sentry.captureException(testError);
+                    alert('Test error has been sent to Sentry monitoring! Check your Sentry dashboard to see the error report.');
+                } else {
+                    alert('Sentry is not properly configured. Please check the console for more information.');
+                }
+                
+                // Also throw the error to trigger any global error handlers
+                throw testError;
+            } catch (error) {
+                console.error('Test error triggered:', error);
+            }
+        });
         
         modal.addEventListener('click', (e) => {
             if (e.target === modal) {
@@ -559,6 +659,21 @@
 
             } catch (error) {
                 console.error("Error calling Gemini API:", error);
+                
+                // Capture API errors with Sentry
+                if (typeof Sentry !== 'undefined' && Sentry.captureException) {
+                    Sentry.addBreadcrumb({
+                        message: 'API call failed',
+                        category: 'api',
+                        level: 'error',
+                        data: {
+                            selectedIncome: selectedIncome,
+                            errorMessage: error.message
+                        }
+                    });
+                    Sentry.captureException(error);
+                }
+                
                 loadingState.classList.add('hidden');
                 errorState.classList.remove('hidden');
             }
