@@ -110,13 +110,15 @@ The application includes Sentry error monitoring for tracking and debugging issu
 
 ### Main Interface
 
-1. **View Tax Statistics**: The homepage displays key tax information including the highest effective tax rate (12.19%) and standard basic allowance (HK$132,000)
+1. **Language Selection**: Use the language selector in the top-right corner to switch between English and Traditional Chinese (繁體中文)
 
-2. **Explore Charts**:
+2. **View Tax Statistics**: The homepage displays key tax information including the highest effective tax rate (12.19%) and standard basic allowance (HK$132,000)
+
+3. **Explore Charts**:
    - **Tax Payable Chart**: Shows how absolute tax amounts increase with income
    - **Effective Tax Rate Chart**: Demonstrates the progressive nature of Hong Kong's tax system
 
-3. **Review Detailed Data**: Use the comprehensive table to see exact figures for different income levels
+4. **Review Detailed Data**: Use the comprehensive table to see exact figures for different income levels
 
 ### Tax Savings Advisor
 
@@ -124,6 +126,7 @@ The application includes Sentry error monitoring for tracking and debugging issu
 2. **Select Income Level**: Choose your monthly income from the dropdown menu
 3. **Generate Tips**: Click "Generate My Tips" to receive AI-powered advice
 4. **Review Recommendations**: Read personalized suggestions for tax optimization
+5. **Test Error Monitoring**: Use the "🐛 Test Error Monitoring" button to verify Sentry integration (when configured)
 
 ### Interactive Features
 
@@ -168,7 +171,7 @@ Contributions to improve the Hong Kong Tax Rate App are welcome! Here are ways y
 - **Additional Features**: New chart types, export functionality, or comparison tools
 - **Accessibility**: Improve screen reader compatibility and keyboard navigation
 - **Performance**: Optimize loading times and chart rendering
-- **Internationalization**: Add support for traditional Chinese or other languages
+- **Internationalization**: ✅ English and Traditional Chinese support implemented
 
 ### Submitting Changes
 
