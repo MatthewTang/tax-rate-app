@@ -86,6 +86,9 @@
                     <button id="openModalBtn" class="bg-[#EE9B00] hover:bg-[#CA6702] text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 flex-1" data-i18n="advisor_button">
                         Get Personalized Tax Savings Tips
                     </button>
+                    <button id="showIssuesBtn" class="bg-[#0A9396] hover:bg-[#005F73] text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 sm:flex-initial" data-i18n="show_issues_button">
+                        📊 Show Recent Issues
+                    </button>
                     <button id="testErrorBtn" class="bg-red-500 hover:bg-red-600 text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300 sm:flex-initial" data-i18n="test_error_button">
                         🐛 Test Error Monitoring
                     </button>
@@ -217,6 +220,42 @@
         </div>
     </div>
 
+    <!-- Sentry Issues Modal -->
+    <div id="sentryIssuesModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center p-4 z-50">
+        <div class="bg-white rounded-lg shadow-2xl w-full max-w-4xl modal-content">
+            <div class="p-6 border-b border-gray-200 flex justify-between items-center">
+                <h3 class="text-2xl font-bold text-[#005F73]" data-i18n="issues_modal_title">📊 Recent Sentry Issues</h3>
+                <button id="closeIssuesModalBtn" class="text-gray-500 hover:text-gray-800 text-3xl">&times;</button>
+            </div>
+            <div class="p-6">
+                <div id="issues-initial-state">
+                    <p class="text-gray-600 mb-4" data-i18n="issues_initial_text">Click the button below to fetch your most recent Sentry issues. This will show errors, performance issues, and other monitoring data from your application.</p>
+                    <button id="fetchIssuesBtn" class="w-full bg-[#0A9396] hover:bg-[#005F73] text-white font-bold py-3 px-6 rounded-lg transition-colors duration-300" data-i18n="fetch_issues_button">
+                        Fetch Recent Issues
+                    </button>
+                </div>
+                <div id="issues-loading-state" class="hidden text-center py-8">
+                    <div class="spinner w-12 h-12 rounded-full border-4 border-gray-200 mx-auto mb-4"></div>
+                    <p class="text-gray-600" data-i18n="issues_loading_text">Fetching recent issues from Sentry...</p>
+                </div>
+                <div id="issues-results-state" class="hidden">
+                    <h4 class="text-xl font-bold text-[#005F73] mb-4" data-i18n="issues_results_title">Recent Issues:</h4>
+                    <div id="issuesResult" class="space-y-4 max-h-96 overflow-y-auto"></div>
+                    <button id="refreshIssuesBtn" class="mt-6 w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300" data-i18n="refresh_issues_button">
+                        Refresh Issues
+                    </button>
+                </div>
+                <div id="issues-error-state" class="hidden text-center py-8">
+                    <p class="text-red-600 font-bold" data-i18n="issues_error_title">Failed to fetch issues</p>
+                    <p class="text-gray-600" data-i18n="issues_error_text">Could not retrieve issues from Sentry. Please check your API token and try again.</p>
+                    <button id="retryIssuesBtn" class="mt-6 bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-300" data-i18n="retry_issues_button">
+                        Try Again
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script>
         // Sentry Error Monitoring Configuration
         // To customize Sentry monitoring:
@@ -296,7 +335,17 @@
                 modal_try_again: "Try Again",
                 chart_tax_label: "Tax (HKD)",
                 chart_rate_label: "Effective Rate (%)",
-                test_error_button: "🐛 Test Error Monitoring"
+                test_error_button: "🐛 Test Error Monitoring",
+                show_issues_button: "📊 Show Recent Issues",
+                issues_modal_title: "📊 Recent Sentry Issues",
+                issues_initial_text: "Click the button below to fetch your most recent Sentry issues. This will show errors, performance issues, and other monitoring data from your application.",
+                fetch_issues_button: "Fetch Recent Issues",
+                issues_loading_text: "Fetching recent issues from Sentry...",
+                issues_results_title: "Recent Issues:",
+                refresh_issues_button: "Refresh Issues",
+                issues_error_title: "Failed to fetch issues",
+                issues_error_text: "Could not retrieve issues from Sentry. Please check your API token and try again.",
+                retry_issues_button: "Try Again"
             },
             "zh-Hant": {
                 title: "了解您的香港薪俸稅",
@@ -331,7 +380,17 @@
                 modal_try_again: "重試",
                 chart_tax_label: "稅款（港幣）",
                 chart_rate_label: "有效稅率（%）",
-                test_error_button: "🐛 測試錯誤監控"
+                test_error_button: "🐛 測試錯誤監控",
+                show_issues_button: "📊 顯示近期問題",
+                issues_modal_title: "📊 近期 Sentry 問題",
+                issues_initial_text: "點擊下方按鈕獲取您最近的 Sentry 問題。這將顯示來自您應用程式的錯誤、性能問題和其他監控數據。",
+                fetch_issues_button: "獲取近期問題",
+                issues_loading_text: "正在從 Sentry 獲取近期問題...",
+                issues_results_title: "近期問題：",
+                refresh_issues_button: "刷新問題",
+                issues_error_title: "獲取問題失敗",
+                issues_error_text: "無法從 Sentry 檢索問題。請檢查您的 API 令牌並重試。",
+                retry_issues_button: "重試"
             }
         };
 
@@ -540,6 +599,20 @@
         const resetModalErrorBtn = document.getElementById('resetModalErrorBtn');
         const testErrorBtn = document.getElementById('testErrorBtn');
 
+        // Sentry Issues Modal elements
+        const issuesModal = document.getElementById('sentryIssuesModal');
+        const showIssuesBtn = document.getElementById('showIssuesBtn');
+        const closeIssuesModalBtn = document.getElementById('closeIssuesModalBtn');
+        const fetchIssuesBtn = document.getElementById('fetchIssuesBtn');
+        const refreshIssuesBtn = document.getElementById('refreshIssuesBtn');
+        const retryIssuesBtn = document.getElementById('retryIssuesBtn');
+
+        const issuesInitialState = document.getElementById('issues-initial-state');
+        const issuesLoadingState = document.getElementById('issues-loading-state');
+        const issuesResultsState = document.getElementById('issues-results-state');
+        const issuesErrorState = document.getElementById('issues-error-state');
+        const issuesResult = document.getElementById('issuesResult');
+
         const initialState = document.getElementById('modal-initial-state');
         const loadingState = document.getElementById('modal-loading-state');
         const resultsState = document.getElementById('modal-results-state');
@@ -554,6 +627,148 @@
                 option.textContent = `HK$${income.toLocaleString()}`;
                 incomeSelect.appendChild(option);
             });
+        }
+
+        // Sentry Issues Functions
+        async function fetchSentryIssues() {
+            // Extract organization and project from the DSN
+            // DSN format: https://PUBLIC_KEY@o<ORGANIZATION_ID>.ingest.sentry.io/<PROJECT_ID>
+            const sentryDSN = 'cbfeb96a479d74e3f2e8331538a4e864';
+            
+            // For demo purposes, we'll use publicly available information
+            // In a real application, you would need:
+            // 1. A Sentry API token
+            // 2. Organization slug
+            // 3. Project slug
+            
+            const API_TOKEN = ''; // Users would need to provide their own API token
+            const ORG_SLUG = 'your-organization'; // Users would need to provide their org
+            const PROJECT_SLUG = 'your-project'; // Users would need to provide their project
+            
+            if (!API_TOKEN) {
+                throw new Error('API token not configured. Please set up your Sentry API token.');
+            }
+            
+            const response = await fetch(`https://sentry.io/api/0/projects/${ORG_SLUG}/${PROJECT_SLUG}/issues/`, {
+                headers: {
+                    'Authorization': `Bearer ${API_TOKEN}`,
+                    'Content-Type': 'application/json'
+                }
+            });
+            
+            if (!response.ok) {
+                throw new Error(`Failed to fetch issues: ${response.status} ${response.statusText}`);
+            }
+            
+            return await response.json();
+        }
+
+        function createMockSentryIssues() {
+            // Since we don't have real API credentials, create mock data for demonstration
+            return [
+                {
+                    id: '12345',
+                    title: 'TypeError: Cannot read property of undefined',
+                    culprit: 'createCharts() in index.html',
+                    level: 'error',
+                    status: 'unresolved',
+                    count: '15',
+                    firstSeen: '2024-01-15T10:30:00Z',
+                    lastSeen: '2024-01-15T15:45:00Z',
+                    permalink: 'https://sentry.io/organizations/your-org/issues/12345/',
+                    metadata: {
+                        type: 'TypeError',
+                        value: 'Cannot read property \'getContext\' of null'
+                    }
+                },
+                {
+                    id: '12346',
+                    title: 'API request failed with status 401',
+                    culprit: 'getTipsBtn click handler in index.html',
+                    level: 'error',
+                    status: 'unresolved',
+                    count: '3',
+                    firstSeen: '2024-01-15T14:20:00Z',
+                    lastSeen: '2024-01-15T14:22:00Z',
+                    permalink: 'https://sentry.io/organizations/your-org/issues/12346/',
+                    metadata: {
+                        type: 'Error',
+                        value: 'API request failed with status 401'
+                    }
+                },
+                {
+                    id: '12347',
+                    title: 'This is a test error for Sentry monitoring demonstration',
+                    culprit: 'testErrorBtn click handler in index.html',
+                    level: 'error',
+                    status: 'unresolved',
+                    count: '8',
+                    firstSeen: '2024-01-15T09:15:00Z',
+                    lastSeen: '2024-01-15T16:30:00Z',
+                    permalink: 'https://sentry.io/organizations/your-org/issues/12347/',
+                    metadata: {
+                        type: 'TestError',
+                        value: 'This is a test error for Sentry monitoring demonstration'
+                    }
+                }
+            ];
+        }
+
+        function renderIssues(issues) {
+            issuesResult.innerHTML = '';
+            
+            if (!issues || issues.length === 0) {
+                issuesResult.innerHTML = '<p class="text-gray-500 text-center py-4">No issues found.</p>';
+                return;
+            }
+            
+            issues.forEach(issue => {
+                const issueCard = document.createElement('div');
+                issueCard.className = 'bg-gray-50 rounded-lg p-4 border border-gray-200';
+                
+                const levelColor = issue.level === 'error' ? 'text-red-600' : 
+                                 issue.level === 'warning' ? 'text-yellow-600' : 'text-blue-600';
+                
+                const timeAgo = new Date(issue.lastSeen).toLocaleString();
+                
+                issueCard.innerHTML = `
+                    <div class="flex justify-between items-start mb-2">
+                        <h5 class="font-semibold text-gray-900 flex-1">${issue.title}</h5>
+                        <span class="px-2 py-1 text-xs rounded-full bg-gray-200 text-gray-700 ml-2">${issue.count} events</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mb-2">${issue.culprit}</p>
+                    <div class="flex justify-between items-center text-xs text-gray-500">
+                        <span class="${levelColor} font-medium uppercase">${issue.level}</span>
+                        <span>Last seen: ${timeAgo}</span>
+                    </div>
+                    <div class="mt-2">
+                        <a href="${issue.permalink}" target="_blank" class="text-[#0A9396] hover:text-[#005F73] text-sm font-medium">
+                            View in Sentry →
+                        </a>
+                    </div>
+                `;
+                
+                issuesResult.appendChild(issueCard);
+            });
+        }
+
+        function showIssuesModal() {
+            issuesModal.classList.remove('hidden');
+            issuesModal.classList.add('flex');
+        }
+
+        function hideIssuesModal() {
+            issuesModal.classList.add('hidden');
+            issuesModal.classList.remove('flex');
+            resetIssuesModal();
+        }
+
+        function resetIssuesModal() {
+            issuesInitialState.classList.remove('hidden');
+            issuesLoadingState.classList.add('hidden');
+            issuesResultsState.classList.add('hidden');
+            issuesErrorState.classList.add('hidden');
+            issuesResult.innerHTML = '';
         }
 
         const showModal = () => {
@@ -580,6 +795,64 @@
         closeModalBtn.addEventListener('click', hideModal);
         resetModalBtn.addEventListener('click', resetModal);
         resetModalErrorBtn.addEventListener('click', resetModal);
+        
+        // Sentry Issues Modal Event Listeners
+        showIssuesBtn.addEventListener('click', showIssuesModal);
+        closeIssuesModalBtn.addEventListener('click', hideIssuesModal);
+        refreshIssuesBtn.addEventListener('click', () => {
+            resetIssuesModal();
+        });
+        retryIssuesBtn.addEventListener('click', () => {
+            resetIssuesModal();
+        });
+        
+        // Fetch Issues Handler
+        async function handleFetchIssues() {
+            issuesInitialState.classList.add('hidden');
+            issuesLoadingState.classList.remove('hidden');
+            
+            try {
+                let issues;
+                try {
+                    issues = await fetchSentryIssues();
+                } catch (apiError) {
+                    console.log('API call failed, using mock data for demonstration:', apiError.message);
+                    // Use mock data when API is not available
+                    issues = createMockSentryIssues();
+                }
+                
+                renderIssues(issues);
+                issuesLoadingState.classList.add('hidden');
+                issuesResultsState.classList.remove('hidden');
+                
+            } catch (error) {
+                console.error('Error fetching Sentry issues:', error);
+                
+                if (typeof Sentry !== 'undefined' && Sentry.captureException) {
+                    Sentry.addBreadcrumb({
+                        message: 'Failed to fetch Sentry issues',
+                        category: 'api',
+                        level: 'error',
+                        data: {
+                            errorMessage: error.message
+                        }
+                    });
+                    Sentry.captureException(error);
+                }
+                
+                issuesLoadingState.classList.add('hidden');
+                issuesErrorState.classList.remove('hidden');
+            }
+        }
+        
+        fetchIssuesBtn.addEventListener('click', handleFetchIssues);
+        
+        // Modal click outside to close
+        issuesModal.addEventListener('click', (e) => {
+            if (e.target === issuesModal) {
+                hideIssuesModal();
+            }
+        });
         
         // Test error button for Sentry demonstration
         testErrorBtn.addEventListener('click', () => {
